@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
-    && wget -O /var/lib/chrome/chrome-linux64.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-f>
+    && wget -O /var/lib/chrome/chrome-linux64.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/119.0.6045.105/linux64/chrome-linux64.zip
     && unzip /var/lib/chrome/chrome-linux64.zip -d /usr/local/bin/
     && chmod +x /usr/local/bin/chrome-linux64/chrome
 # Copy the current directory contents into the container at /usr/src/app
