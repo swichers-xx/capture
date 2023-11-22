@@ -6,6 +6,10 @@ from datetime import datetime
 import threading
 import os
 import base64
+import logging
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 
@@ -54,13 +58,18 @@ def process_webpage(url):
 
 @app.route('/', methods=['POST'])
 def index():
+    logging.info('Received a POST request')
     data = request.json
     url = data.get('url')
     if url:
+        logging.info(f'URL received: {url}')
         threading.Thread(target=process_webpage, args=(url,)).start()
+        logging.info('Started thread for processing the webpage')
         return '', 204
     else:
+        logging.warning('No URL provided in the request')
         return 'No URL provided', 400
 
 if __name__ == '__main__':
+    logging.info('Starting Flask server')
     app.run(port=8090, threaded=True)
