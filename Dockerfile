@@ -4,7 +4,7 @@ FROM python:latest
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Install necessary dependencies for Chrome and ChromeDriver
+# Install necessary dependencies for Chrome
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
@@ -14,10 +14,12 @@ RUN apt-get update && apt-get install -y \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget -O /tmp/chrome-linux64.zip https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && dpkg -i /tmp/chrome-linux64.zip \
-    && apt-get install -f
+    && rm -rf /var/lib/apt/lists/* 
+
+# Download and install ChromeDriver
+RUN wget -O /tmp/chromedriver_linux64.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/119.0.6045.105/linux64/chromedriver-linux64.zip \
+    && unzip /tmp/chromedriver_linux64.zip -d /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver
 
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
