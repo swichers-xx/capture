@@ -2,12 +2,11 @@ from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+import chromedriver_autoinstaller
 from datetime import datetime
 import threading
 import os
-import base64
 import logging
-import chromedriver_autoinstaller
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -22,8 +21,9 @@ def url_to_filename(url, extension):
 def process_webpage(url):
     driver = None
     try:
+        # Install ChromeDriver
         chromedriver_autoinstaller.install()
-        
+
         # Set Chrome options
         chrome_options = Options()
         chrome_options.add_argument("--headless")
@@ -31,31 +31,26 @@ def process_webpage(url):
         chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         chrome_options.add_experimental_option('w3c', True)
 
-        # Create WebDriver for remote connection
-        driver = webdriver.Remote(
-            command_executor='http://172.16.1.184:4444/wd/hub',
-            options=chrome_options
-        )
+        try:
+            # Try connecting to remote WebDriver
+            driver = webdriver.Remote(
+                command_executor='http://172.16.1.184:4444/wd/hub',
+                options=chrome_options
+            )
+        except Exception as e:
+            logging.warning(f"Remote WebDriver connection failed: {e}. Falling back to local ChromeDriver.")
+            # Fallback to local ChromeDriver
+            driver = webdriver.Chrome(options=chrome_options)
 
         driver.get(url)
-        driver.implicitly_wait(10)  # Wait for the page to load
+        driver.implicitly_wait(10)
 
-        # Save a full-page screenshot
+        # Take a screenshot
         screenshot_filename = f'screenshots/{url_to_filename(url, ".png")}'
         os.makedirs(os.path.dirname(screenshot_filename), exist_ok=True)
         driver.save_screenshot(screenshot_filename)
 
-        # Generate a PDF
-        pdf_result = driver.execute_cdp_cmd("Page.printToPDF", {
-            "landscape": False,
-            "printBackground": True,
-            "preferCSSPageSize": True,
-        })
-        pdf_filename = f'screenshots/{url_to_filename(url, ".pdf")}'
-        with open(pdf_filename, 'wb') as f:
-            f.write(base64.b64decode(pdf_result['data']))
-
-        # Save all text content
+        # Extract text content
         text_content = driver.find_element(By.TAG_NAME, "body").text
         text_filename = f'screenshots/{url_to_filename(url, ".txt")}'
         with open(text_filename, 'w', encoding='utf-8') as f:
