@@ -1,13 +1,13 @@
+from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from datetime import datetime
 import threading
 import os
-import json
 import chromedriver_autoinstaller
 import logging
+import base64  # Import base64 module for decoding PDF data
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -72,6 +72,7 @@ def process_webpage(url):
     finally:
         if driver:
             driver.quit()
+
 @app.route('/', methods=['POST'])
 def index():
     if not request.is_json:
@@ -93,4 +94,3 @@ def index():
 if __name__ == '__main__':
     logging.info('Starting Flask server')
     app.run(host='0.0.0.0', port=8090, threaded=True)
-
