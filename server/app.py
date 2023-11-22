@@ -1,7 +1,8 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from datetime import datetime
 import threading
 import os
@@ -22,9 +23,16 @@ def process_webpage(url):
     driver = None
     try:
         chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Run in headless mode for servers
+
+        # Desired capabilities for better error messages
+        caps = DesiredCapabilities.CHROME
+        caps['loggingPrefs'] = {'driver': 'INFO', 'browser': 'INFO'}
+
         # Connect to Selenium Standalone Chrome container
         driver = webdriver.Remote(
             command_executor='http://172.16.1.184:4444/wd/hub',
+            desired_capabilities=caps,
             options=chrome_options
         )
 
@@ -53,25 +61,29 @@ def process_webpage(url):
             f.write(text_content)
 
     except Exception as e:
-        print(f"Error processing webpage {url}: {e}")
+        logging.error(f"Error processing webpage {url}: {e}", exc_info=True)
     finally:
         if driver:
             driver.quit()
 
 @app.route('/', methods=['POST'])
 def index():
-    logging.info('Received a POST request')
-    data = request.json
+    if not request.is_json:
+        logging.warning("Invalid request: No JSON data")
+        return jsonify(error="Invalid request: No JSON data"), 400
+
+    data = request.get_json()
     url = data.get('url')
-    if url:
-        logging.info(f'URL received: {url}')
-        threading.Thread(target=process_webpage, args=(url,)).start()
-        logging.info('Started thread for processing the webpage')
-        return '', 204
-    else:
+
+    if not url:
         logging.warning('No URL provided in the request')
-        return 'No URL provided', 400
+        return jsonify(error='No URL provided'), 400
+
+    logging.info(f'URL received: {url}')
+    threading.Thread(target=process_webpage, args=(url,)).start()
+    logging.info('Started thread for processing the webpage')
+    return jsonify(message="Request received, processing..."), 202
 
 if __name__ == '__main__':
     logging.info('Starting Flask server')
-    app.run(port=8090, threaded=True)
+    app.run(host='0.0.0.0', port=8090, threaded=True)
