@@ -1,8 +1,7 @@
 from flask import Flask, request, jsonify
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 from datetime import datetime
 import threading
 import os
@@ -22,20 +21,18 @@ def url_to_filename(url, extension):
 def process_webpage(url):
     driver = None
     try:
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Run in headless mode for servers
-
         # Set Chrome options
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Run in headless mode for servers
-        chrome_options.set_capability('loggingPrefs', {'driver': 'INFO', 'browser': 'INFO'})
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        chrome_options.add_experimental_option('w3c', True)
 
-# Connect to Selenium Standalone Chrome container
+        # Create WebDriver for remote connection
         driver = webdriver.Remote(
             command_executor='http://172.16.1.184:4444/wd/hub',
             options=chrome_options
         )
-
 
         driver.get(url)
         driver.implicitly_wait(10)  # Wait for the page to load
