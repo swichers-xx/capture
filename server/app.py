@@ -7,6 +7,7 @@ import threading
 import os
 import base64
 import logging
+import chromedriver_autoinstaller
 
 # Configure basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,6 +22,8 @@ def url_to_filename(url, extension):
 def process_webpage(url):
     driver = None
     try:
+        chromedriver_autoinstaller.install()
+        
         # Set Chrome options
         chrome_options = Options()
         chrome_options.add_argument("--headless")
