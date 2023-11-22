@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 # Download and install ChromeDriver
 RUN wget -O /tmp/chromedriver_linux64.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/119.0.6045.105/linux64/chromedriver-linux64.zip \
     && unzip /tmp/chromedriver_linux64.zip -d /usr/local/bin/ \
-    && chmod +x /usr/local/bin/chromedriver
+    && chmod +x /usr/local/bin/chromedriver-linux64/chromedriver
 
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
