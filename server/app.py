@@ -40,7 +40,7 @@ def process_webpage(url):
         except Exception as e:
             logging.warning(f"Remote WebDriver connection failed: {e}. Falling back to local ChromeDriver.")
             # Fallback to local ChromeDriver
-            driver = webdriver.Chrome(executable_path='/var/lib/bin/chrome-linux64/chrome', options=chrome_options)
+            driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=chrome_options)
 
         driver.get(url)
         driver.implicitly_wait(10)
