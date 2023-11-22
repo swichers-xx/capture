@@ -23,7 +23,7 @@ def process_webpage(url):
     try:
         # Connect to Selenium Standalone Chrome container
         driver = webdriver.Remote(
-            command_executor='http://chrome:4444/wd/hub',
+            command_executor='http://172.16.1.184:4444/wd/hub',
             desired_capabilities=DesiredCapabilities.CHROME)
 
         driver.get(url)
