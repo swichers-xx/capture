@@ -24,9 +24,9 @@ def process_webpage(url):
         chrome_options = Options()
         # Connect to Selenium Standalone Chrome container
         driver = webdriver.Remote(
-            
             command_executor='http://172.16.1.184:4444/wd/hub',
-            options=chrome_options)
+            options=chrome_options
+        )
 
         driver.get(url)
         driver.implicitly_wait(10)  # Wait for the page to load
