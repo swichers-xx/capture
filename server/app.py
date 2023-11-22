@@ -21,8 +21,10 @@ def url_to_filename(url, extension):
 def process_webpage(url):
     driver = None
     try:
+        chrome_options = Options()
         # Connect to Selenium Standalone Chrome container
         driver = webdriver.Remote(
+            
             command_executor='http://172.16.1.184:4444/wd/hub',
             options=chrome_options)
 
