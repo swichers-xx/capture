@@ -25,16 +25,17 @@ def process_webpage(url):
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Run in headless mode for servers
 
-        # Desired capabilities for better error messages
-        caps = DesiredCapabilities.CHROME
-        caps['loggingPrefs'] = {'driver': 'INFO', 'browser': 'INFO'}
+        # Set Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Run in headless mode for servers
+        chrome_options.set_capability('loggingPrefs', {'driver': 'INFO', 'browser': 'INFO'})
 
-        # Connect to Selenium Standalone Chrome container
+# Connect to Selenium Standalone Chrome container
         driver = webdriver.Remote(
             command_executor='http://172.16.1.184:4444/wd/hub',
-            desired_capabilities=caps,
             options=chrome_options
         )
+
 
         driver.get(url)
         driver.implicitly_wait(10)  # Wait for the page to load
