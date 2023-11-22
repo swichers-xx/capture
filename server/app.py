@@ -1,6 +1,6 @@
 from flask import Flask, request
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from datetime import datetime
 import threading
@@ -24,7 +24,7 @@ def process_webpage(url):
         # Connect to Selenium Standalone Chrome container
         driver = webdriver.Remote(
             command_executor='http://172.16.1.184:4444/wd/hub',
-            desired_capabilities=DesiredCapabilities.CHROME)
+            options=chrome_options)
 
         driver.get(url)
         driver.implicitly_wait(10)  # Wait for the page to load
