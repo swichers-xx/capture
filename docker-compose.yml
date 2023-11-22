@@ -5,8 +5,8 @@ services:
     build: .
     ports:
       - "8090:8090"
-    environment:
-      - CHROMEDRIVER_PATH=/usr/bin/chromedriver
+    volumes:
+      - ./screenshots:/usr/src/app/screenshots
     depends_on:
       - chrome
 
