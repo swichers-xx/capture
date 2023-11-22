@@ -29,8 +29,7 @@ def process_webpage(url):
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        chrome_options.add_experimental_option('w3c', True)
+        chrome_options.add_argument("--print-to-pdf")  # This enables PDF printing
 
         try:
             # Try connecting to remote WebDriver
@@ -51,27 +50,17 @@ def process_webpage(url):
         os.makedirs(os.path.dirname(screenshot_filename), exist_ok=True)
         driver.save_screenshot(screenshot_filename)
 
-        # Extract text content
-        text_content = driver.find_element(By.TAG_NAME, "body").text
-        text_filename = f'screenshots/{url_to_filename(url, ".txt")}'
-        with open(text_filename, 'w', encoding='utf-8') as f:
-            f.write(text_content)
-
-        # Generate a PDF
-        pdf_result = driver.execute_cdp_cmd("Page.printToPDF", {
-            "landscape": False,
-            "printBackground": True,
-            "preferCSSPageSize": True,
-        })
+        # Save the PDF
         pdf_filename = f'screenshots/{url_to_filename(url, ".pdf")}'
-        with open(pdf_filename, 'wb') as f:
-            f.write(base64.b64decode(pdf_result['data']))
+        with open(pdf_filename, 'wb') as pdf_file:
+            pdf_file.write(driver.find_element(By.TAG_NAME, "body").screenshot_as_pdf)
 
     except Exception as e:
         logging.error(f"Error processing webpage {url}: {e}", exc_info=True)
     finally:
         if driver:
             driver.quit()
+
 
 @app.route('/', methods=['POST'])
 def index():
