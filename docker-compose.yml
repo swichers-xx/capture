@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    ports:
+      - "8090:8090"
+    environment:
+      - CHROMEDRIVER_PATH=/usr/bin/chromedriver
+    depends_on:
+      - chrome
+
+  chrome:
+    image: selenium/standalone-chrome:latest
+    shm_size: 2gb
