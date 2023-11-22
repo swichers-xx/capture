@@ -1,11 +1,12 @@
-from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-import chromedriver_autoinstaller
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from datetime import datetime
 import threading
 import os
+import json
+import chromedriver_autoinstaller
 import logging
 
 # Configure basic logging
@@ -40,7 +41,7 @@ def process_webpage(url):
         except Exception as e:
             logging.warning(f"Remote WebDriver connection failed: {e}. Falling back to local ChromeDriver.")
             # Fallback to local ChromeDriver
-            driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver-linux64/chromedriver', options=chrome_options)
+            driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=chrome_options)
 
         driver.get(url)
         driver.implicitly_wait(10)
@@ -56,12 +57,21 @@ def process_webpage(url):
         with open(text_filename, 'w', encoding='utf-8') as f:
             f.write(text_content)
 
+        # Generate a PDF
+        pdf_result = driver.execute_cdp_cmd("Page.printToPDF", {
+            "landscape": False,
+            "printBackground": True,
+            "preferCSSPageSize": True,
+        })
+        pdf_filename = f'screenshots/{url_to_filename(url, ".pdf")}'
+        with open(pdf_filename, 'wb') as f:
+            f.write(base64.b64decode(pdf_result['data']))
+
     except Exception as e:
         logging.error(f"Error processing webpage {url}: {e}", exc_info=True)
     finally:
         if driver:
             driver.quit()
-
 @app.route('/', methods=['POST'])
 def index():
     if not request.is_json:
@@ -83,3 +93,4 @@ def index():
 if __name__ == '__main__':
     logging.info('Starting Flask server')
     app.run(host='0.0.0.0', port=8090, threaded=True)
+
